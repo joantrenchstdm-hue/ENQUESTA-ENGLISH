@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>School Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --ink: #101426;
+    --paper: #ffffff;
+    --bg: #2f4bff;
+    --sun: #ffd23f;
+    --mint: #3ddc97;
+    --pink: #ff6b9a;
+    --sky: #8fd3ff;
+    --muted: #4b5168;
+    --display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+    --body: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: light; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--bg);
+    background-image: radial-gradient(rgba(255,255,255,.16) 2px, transparent 2px);
+    background-size: 26px 26px;
+    color: var(--ink);
+    font: 17px/1.5 var(--body);
+    padding: 28px 16px 56px;
+  }
+  main { max-width: 680px; margin: 0 auto; }
+
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; color: #fff; }
+  header svg { flex: none; width: 54px; height: 54px; }
+  h1 {
+    font: 800 clamp(2rem, 7vw, 2.8rem)/1 var(--display);
+    margin: 0; letter-spacing: -0.01em;
+  }
+  .sub { margin: 4px 0 0; font-weight: 500; opacity: .92; }
+
+  .card {
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    box-shadow: 8px 8px 0 var(--ink);
+    padding: 24px 22px;
+  }
+
+  .steps { display: flex; gap: 6px; margin-bottom: 14px; }
+  .steps span {
+    flex: 1; height: 12px; border: 2px solid var(--ink); border-radius: 999px; background: #fff;
+  }
+  .steps span.done { background: var(--ink); }
+  .steps span.now { background: var(--sun); }
+  .counter { font-weight: 700; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+  h2 { font: 800 clamp(1.5rem, 5.5vw, 2rem)/1.15 var(--display); margin: 0 0 20px; text-wrap: balance; }
+
+  .options { display: grid; gap: 12px; }
+  .option {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; text-align: left;
+    background: #fff; color: var(--ink);
+    border: 3px solid var(--ink); border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--ink);
+    padding: 11px 14px; font: 700 1.05rem/1.3 var(--body);
+    cursor: pointer;
+    transition: transform .08s, box-shadow .08s, background .12s;
+  }
+  .option .key {
+    flex: none; width: 36px; height: 36px; display: grid; place-items: center;
+    border: 2px solid var(--ink); border-radius: 10px; background: var(--sky);
+    font: 800 1rem var(--display);
+  }
+  .option:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .option:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+  .option[aria-pressed="true"] { background: var(--sun); }
+  .option[aria-pressed="true"] .key { background: var(--ink); color: var(--sun); }
+
+  .actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+  .btn {
+    font: 800 1rem var(--display); cursor: pointer;
+    border: 3px solid var(--ink); border-radius: 12px; padding: 10px 22px;
+    background: #fff; color: var(--ink); box-shadow: 4px 4px 0 var(--ink);
+    transition: transform .08s, box-shadow .08s;
+  }
+  .btn:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn.primary { background: var(--mint); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: 2px 2px 0 var(--ink); }
+  .option:focus-visible, .btn:focus-visible { outline: 4px solid var(--pink); outline-offset: 3px; }
+  .error { margin-top: 14px; font-weight: 700; color: #b3001b; }
+
+  .done-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 4px; }
+  .done-head h2 { margin: 0; }
+  .people { font-weight: 700; color: var(--muted); }
+  .rq { margin-top: 26px; padding-top: 22px; border-top: 3px dashed var(--ink); }
+  .rq:first-of-type { border-top: 0; padding-top: 0; margin-top: 18px; }
+  .rq h3 { font: 800 1.15rem/1.25 var(--display); margin: 0 0 12px; text-wrap: balance; }
+  .row { margin-bottom: 12px; }
+  .row-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 700; }
+  .row-top .pct { font: 800 1.35rem var(--display); font-variant-numeric: tabular-nums; flex: none; }
+  .you {
+    display: inline-block; margin-left: 8px; padding: 1px 9px; border-radius: 999px;
+    background: var(--ink); color: var(--sun); font: 800 .72rem var(--display); letter-spacing: .06em; text-transform: uppercase; vertical-align: middle;
+  }
+  .track { height: 20px; border: 3px solid var(--ink); border-radius: 999px; background: #eef0f6; overflow: hidden; margin-top: 4px; }
+  .fill { height: 100%; width: 0; border-right: 3px solid var(--ink); transition: width .8s cubic-bezier(.2,.8,.2,1); }
+  .fill[data-w="0"] { border-right: 0; }
+  .c0 { background: var(--sun); } .c1 { background: var(--mint); } .c2 { background: var(--pink); } .c3 { background: var(--sky); }
+  .note { color: var(--muted); font-size: .9rem; margin: 22px 0 0; }
+
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .fill, .option, .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="28" fill="#ff9f43" stroke="#101426" stroke-width="4"/>
+      <path d="M4 32h56M32 4v56" stroke="#101426" stroke-width="3.5" fill="none"/>
+      <path d="M11 11c14 10 14 32 0 42M53 11c-14 10-14 32 0 42" stroke="#101426" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div>
+      <h1 id="title"></h1>
+      <p class="sub" id="intro"></p>
+    </div>
+  </header>
+
+  <section class="card" id="quiz" hidden>
+    <div class="steps" id="steps" aria-hidden="true"></div>
+    <div class="counter" id="counter"></div>
+    <h2 id="question"></h2>
+    <div class="options" id="options"></div>
+    <div class="actions">
+      <button class="btn" id="back" type="button">Back</button>
+      <button class="btn primary" id="next" type="button" disabled>Next</button>
+    </div>
+    <div class="error" id="error" role="alert" hidden></div>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <div class="done-head">
+      <h2>Thanks! Here are the results</h2>
+      <span class="people" id="people"></span>
+    </div>
+    <div id="resultsList"></div>
+    <p class="note" id="resultsNote"></p>
+  </section>
+</main>
+
+<script>
+/* ============================================================
+   EDIT HERE: title, text, database and questions
+   ============================================================ */
+const CONFIG = {
+  title: "School Survey",
+  intro: "6 quick questions. At the end you see what everyone answered.",
+
+  /* Name of this survey in the database. Change it if you change the
+     questions, so old answers do not get mixed with the new ones. */
+  surveyId: "school-survey-1",
+
+  /* Firebase Realtime Database URL, for example:
+     "https://my-survey-default-rtdb.europe-west1.firebasedatabase.app"
+     Empty = test mode (results only count this browser). */
+  databaseUrl: ""
+};
+
+const QUESTIONS = [
+  { text: "How do you go to school?",
+    options: ["Car", "Transport public", "Walking", "Other"] },
+  { text: "Do you eat at home?",
+    options: ["Yes", "No", "Sometimes"] },
+  { text: "How time do you study?",
+    options: ["30 m", "1h", "Don’t study", "Other"] },
+  { text: "Do you like basketball?",
+    options: ["Yes", "No"] },
+  { text: "Do you like the food of the school?",
+    options: ["Yes", "No", "Depends"] },
+  { text: "Do you like the teachers at the school?",
+    options: ["Yes", "No"] }
+];
+
+/* ============================================================
+   App code (no need to change anything below)
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+const LETTERS = "ABCDEFGH";
+const LOCAL_KEY = "survey_local_" + CONFIG.surveyId;
+let step = 0;
+const answers = new Array(QUESTIONS.length).fill(null);
+
+document.title = CONFIG.title;
+$("title").textContent = CONFIG.title;
+$("intro").textContent = CONFIG.intro;
+
+function drawSteps() {
+  const box = $("steps");
+  box.textContent = "";
+  QUESTIONS.forEach((_, i) => {
+    const s = document.createElement("span");
+    if (i < step) s.className = "done";
+    else if (i === step) s.className = "now";
+    box.appendChild(s);
+  });
+}
+
+function showQuestion() {
+  const q = QUESTIONS[step];
+  drawSteps();
+  $("counter").textContent = "Question " + (step + 1) + " of " + QUESTIONS.length;
+  $("question").textContent = q.text;
+  $("back").disabled = step === 0;
+  $("next").textContent = step === QUESTIONS.length - 1 ? "Finish" : "Next";
+  $("next").disabled = answers[step] === null;
+  $("error").hidden = true;
+
+  const box = $("options");
+  box.textContent = "";
+  q.options.forEach((label, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "option";
+    b.setAttribute("aria-pressed", answers[step] === i ? "true" : "false");
+    const k = document.createElement("span");
+    k.className = "key";
+    k.textContent = LETTERS[i];
+    const t = document.createElement("span");
+    t.textContent = label;
+    b.appendChild(k);
+    b.appendChild(t);
+    b.addEventListener("click", () => choose(i));
+    box.appendChild(b);
+  });
+}
+
+function choose(i) {
+  answers[step] = i;
+  [...$("options").children].forEach((b, j) => {
+    b.setAttribute("aria-pressed", j === i ? "true" : "false");
+  });
+  $("next").disabled = false;
+}
+
+document.addEventListener("keydown", (e) => {
+  if ($("quiz").hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+  const i = LETTERS.indexOf(e.key.toUpperCase());
+  if (e.key.length === 1 && i >= 0 && i < QUESTIONS[step].options.length) choose(i);
+});
+
+$("back").addEventListener("click", () => { if (step > 0) { step--; showQuestion(); } });
+
+$("next").addEventListener("click", async () => {
+  if (answers[step] === null) return;
+  if (step < QUESTIONS.length - 1) { step++; showQuestion(); return; }
+  $("next").disabled = true;
+  $("next").textContent = "Sending...";
+  try {
+    await saveResponse(answers);
+    showResults(await loadResponses());
+  } catch (e) {
+    $("error").textContent = "Could not send your answers. Check your connection and try again.";
+    $("error").hidden = false;
+    $("next").disabled = false;
+    $("next").textContent = "Finish";
+  }
+});
+
+/* ---------- storage ---------- */
+function dbUrl() { return (CONFIG.databaseUrl || "").replace(/\/+$/, ""); }
+function dbPath() { return dbUrl() + "/" + encodeURIComponent(CONFIG.surveyId) + ".json"; }
+
+async function saveResponse(a) {
+  if (dbUrl()) {
+    const res = await fetch(dbPath(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ a: a, t: Date.now() })
+    });
+    if (!res.ok) throw new Error("save failed");
+    return;
+  }
+  const list = readLocal();
+  list.push({ a: a, t: Date.now() });
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+async function loadResponses() {
+  if (dbUrl()) {
+    const res = await fetch(dbPath());
+    if (!res.ok) throw new Error("load failed");
+    const data = await res.json();
+    return data ? Object.values(data) : [];
+  }
+  return readLocal();
+}
+
+function readLocal() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]"); } catch (e) { return []; }
+}
+
+/* ---------- results ---------- */
+function showResults(all) {
+  $("quiz").hidden = true;
+  $("results").hidden = false;
+  $("people").textContent = all.length + (all.length === 1 ? " person" : " people");
+
+  const list = $("resultsList");
+  list.textContent = "";
+  const fills = [];
+
+  QUESTIONS.forEach((q, qi) => {
+    const counts = new Array(q.options.length).fill(0);
+    let total = 0;
+    all.forEach((r) => {
+      const v = r && Array.isArray(r.a) ? r.a[qi] : null;
+      if (Number.isInteger(v) && v >= 0 && v < counts.length) { counts[v]++; total++; }
+    });
+
+    const wrap = document.createElement("div");
+    wrap.className = "rq";
+    const h = document.createElement("h3");
+    h.textContent = q.text;
+    wrap.appendChild(h);
+
+    q.options.forEach((label, oi) => {
+      const pct = total ? Math.round(counts[oi] / total * 100) : 0;
+      const row = document.createElement("div");
+      row.className = "row";
+
+      const top = document.createElement("div");
+      top.className = "row-top";
+      const name = document.createElement("span");
+      name.textContent = LETTERS[oi] + ") " + label;
+      if (answers[qi] === oi) {
+        const you = document.createElement("span");
+        you.className = "you";
+        you.textContent = "You";
+        name.appendChild(you);
+      }
+      const p = document.createElement("span");
+      p.className = "pct";
+      p.textContent = pct + "%";
+      top.appendChild(name);
+      top.appendChild(p);
+
+      const track = document.createElement("div");
+      track.className = "track";
+      const fill = document.createElement("div");
+      fill.className = "fill c" + (oi % 4);
+      fill.dataset.w = String(pct);
+      track.appendChild(fill);
+      fills.push([fill, pct]);
+
+      row.appendChild(top);
+      row.appendChild(track);
+      wrap.appendChild(row);
+    });
+    list.appendChild(wrap);
+  });
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fills.forEach(([f, pct]) => { f.style.width = pct + "%"; });
+  }));
+
+  $("resultsNote").textContent = dbUrl()
+    ? "Percentages include everyone who has finished the survey."
+    : "Test mode: these results only include answers sent from this browser.";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+$("quiz").hidden = false;
+showQuestion();
+</script>
+</body>
+</html>
